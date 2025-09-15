@@ -6,10 +6,10 @@ This example deploys a "Models as a Service" (MaaS) environment using Red Hat Op
 
 This solution creates a comprehensive API management platform for machine learning models by integrating:
 
-- **3scale API Management** as the API gateway for access control, rate limiting, and analytics
-- **Model Serving Infrastructure** for hosting and serving machine learning models
-- **OpenShift Data Foundation (ODF)** for persistent storage requirements
-- **GitOps-based deployment** using ArgoCD for automated configuration management
+- **3scale API Management** as the API gateway for access control, rate limiting, and analytics.
+- **Model Serving Infrastructure** for hosting and serving machine learning models.
+- **OpenShift Data Foundation (ODF)** for persistent storage requirements. Red Hat OpenShift Data Foundation (ODF) is the recommended solution for providing RWX storage (i.e. RWX storage is required by 3Scale).
+- **GitOps-based deployment** using ArgoCD for automated configuration management.
 
 ## Included Components
 
@@ -17,21 +17,22 @@ This example automates the deployment and configuration of the following compone
 
 *   **3scale API Management**: For API gateway functionality, including access control, rate limiting, and analytics.
 *   **Model Serving (LLMaaS)**: Infrastructure for hosting and serving machine learning models, including a pre-deployed Llama 3.2 1B Instruct model.
-*   **OpenShift Data Foundation (ODF)**: As a prerequisite for providing ReadWriteMany (RWX) storage required by 3scale.
 
 ## Prerequisites
 
 Before you begin, ensure you have the following:
 
 *   An OpenShift cluster with cluster-admin privileges.
-*   The OpenShift GitOps operator installed.
 *   **OpenShift Data Foundation (ODF)** installed and configured to provide ReadWriteMany (RWX) storage.
+*   The OpenShift GitOps operator installed.
 *   The following command-line tools installed locally:
     *   `oc`
     *   `git`
     *   `jq`
     *   `yq`
     *   `podman`
+
+Note: A quick way to get most of this configured via gitops is to use the [ai-accelerator](https://github.com/redhat-ai-services/ai-accelerator) github project. The Openshift Gitops operator and RHOAI and related operators are configured for you out of the box. However, ODF operator along with a suitable storage system must be applied to the cluster prior to running the ai-accelerator project bootstrapping or you can tweak the ai-accelerator kustomize files or the ai-accelerator bootstrap script so that ODF/StorageSystem gets deployed prior to other MaaS components binding to persistent volumes.
 
 ## Deployment
 
@@ -45,21 +46,21 @@ Then select the `models-as-a-service-3scale` example from the menu.
 
 The script will guide you through the following pre-deployment configuration steps:
 
-1.  **Storage Configuration**: You will be prompted to provide the name of a ReadWriteMany (RWX) capable storage class available on your cluster. Red Hat OpenShift Data Foundation (ODF) is the recommended solution for providing this.
-2.  **Git Repository Configuration**: The script will automatically detect your current Git repository URL and branch to configure the ArgoCD ApplicationSet.
-3.  **Commit and Push**: You will be prompted to commit and push these configuration changes to your repository. This step is required for the GitOps-based deployment to work correctly. The script uses a Git credential helper to cache your credentials temporarily.
+1.  **Git Repository Configuration**: The script will automatically detect your current Git repository URL and branch (in case of fork scenario) to configure the ArgoCD ApplicationSet.
+2.  **Commit and Push**: You will be prompted to commit and push these configuration changes to your repository. This step is required for the GitOps-based deployment to work correctly. The script uses a Git credential helper to cache your credentials temporarily.
 
-The bootstrap script then deploys the components using OpenShift GitOps.
+The bootstrap script then deploys the MaaS components using OpenShift GitOps.
 
 ## Post-Installation
 
-After the initial deployment is complete, the script performs several post-installation tasks automatically:
+After the script executes, the ArgoCD Application components perform several post-installation tasks automatically during syncing such as:
 
 *   Waits for all components (3scale, Model Serving) to become ready.
-*   Retrieves and displays the admin credentials for 3scale.
 *   Deploys a pre-configured Llama 3.2 1B Instruct model for immediate use.
-*   Creates a developer portal user (`user1` with password `openshift`) for testing.
-*   Configures the 3scale developer portal with custom content.
+*   Creates a admin portal user (username `admin` with password retrievable by the system-seed secret in 3scale namespace) for testing.
+*   Creates a developer portal user (username `dev1` with password `openshift`) for testing.
+*   Configures the 3scale developer portal with custom content to give it a look and feel more appropriate to MaaS.
+*   3Scale Admin and Developer portal Openshift Routes in the 3scale namespace pointing to `system-provider` and `system-developer` Openshift Service's respectively.
 
 ### Pre-deployed Model
 
@@ -87,7 +88,7 @@ The 3scale admin portal provides access to API management features:
 The 3scale developer portal provides API access for developers:
 
 - **URL**: Available as a route in the `3scale` namespace
-- **Test User**: `user1` / `openshift`
+- **Test User**: `dev1` / `openshift`
 - **Features**: API documentation, key management, usage analytics
 
 ### Model Service
@@ -122,7 +123,7 @@ The deployment includes custom policies for LLM token counting and monitoring:
 
 ### Testing the Pre-deployed Model
 
-1. Access the developer portal using `user1` / `openshift`
+1. Access the developer portal using `dev1` / `openshift`
 2. Create an application to get API keys
 3. Use the API keys to access the Llama model through 3scale gateway
 4. Send requests to the model using OpenAI-compatible API format
@@ -166,7 +167,7 @@ To register additional models after initial deployment:
 - Check for any resource constraints
 
 **Developer Portal Access Issues**
-- Verify the user1 account is created properly
+- Verify the `dev1` account is created properly
 - Check 3scale service status
 - Ensure proper network connectivity
 
