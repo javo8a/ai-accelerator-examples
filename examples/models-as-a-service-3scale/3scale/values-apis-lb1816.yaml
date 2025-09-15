@@ -1,4 +1,3 @@
-
 apis:
   - name: granite-3dot2-8b-instruct
     activeDocOpenAPIRef: https://github.com/redhat-gpte-devopsautomation/lb1816-summit-llm-aas/raw/refs/heads/main/bootstrap/3scale/api_definitions/granite-3dot2-8b-instruct.json
