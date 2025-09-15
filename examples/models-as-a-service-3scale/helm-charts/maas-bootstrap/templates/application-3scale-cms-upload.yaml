@@ -1,0 +1,27 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cms-upload
+  namespace: {{ .Values.namespace | default .Release.Namespace }}
+spec:
+  project: {{ include "maas-bootstrap.fullname" . }}
+  source:
+    repoURL: {{ .Values.repoURL }}
+    targetRevision: {{ .Values.targetRevision }}
+    path: {{ .Values.cmsUpload.path }}
+    helm:
+      values: |
+        hook:
+          pre:
+            hostPattern: maas-admin.{{ .Values.clusterDomainUrl }}
+        git:
+          repo: {{ .Values.repoURL }}
+          ref: {{ .Values.targetRevision }}
+        cms:
+          contextDir: {{ .Values.cmsUpload.contextDir }}/devportal
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: 3scale
+  syncPolicy:
+    automated: {}

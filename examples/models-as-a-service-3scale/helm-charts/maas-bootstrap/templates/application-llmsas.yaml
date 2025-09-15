@@ -1,0 +1,21 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: model-serving 
+  namespace: {{ .Values.namespace | default .Release.Namespace }}
+  annotations:
+    argocd.argoproj.io/sync-options: Validate=false  
+  labels:
+      component: bootstrap
+      purpose: model-serving
+spec:
+  project: {{ include "maas-bootstrap.fullname" . }}
+  source:
+    repoURL: {{ .Values.repoURL }}
+    targetRevision: {{ .Values.targetRevision }}
+    path: {{ .Values.llmaas.path }}
+  destination:
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated: {}
