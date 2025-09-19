@@ -8,7 +8,7 @@ This solution creates a comprehensive API management platform for machine learni
 
 - **3scale API Management** as the API gateway for access control, rate limiting, and analytics.
 - **Model Serving Infrastructure** for hosting and serving machine learning models.
-- **OpenShift Data Foundation (ODF)** for persistent storage requirements. Red Hat OpenShift Data Foundation (ODF) is the recommended solution for providing RWX storage (i.e. RWX storage is required by 3Scale).
+- **OpenShift Data Foundation (ODF)** for persistent storage requirements. Red Hat OpenShift Data Foundation (ODF) is the recommended solution for providing RWX storage (i.e., RWX or S3-compatible storage that is required by **3scale**).
 - **GitOps-based deployment** using ArgoCD for automated configuration management.
 
 ## Included Components
@@ -18,23 +18,34 @@ This example automates the deployment and configuration of the following compone
 *   **3scale API Management**: For API gateway functionality, including access control, rate limiting, and analytics.
 *   **Model Serving (LLMaaS)**: Infrastructure for hosting and serving machine learning models, including a pre-deployed Llama 3.2 1B Instruct model.
 
+## Storage Requirements
+
+**3scale** supports various storage backends including S3. For the specific requirement of RWX persistent volumes, options include Network File System (NFS) or **OpenShift Data Foundation (ODF)**.
+
+This example is configured to use **OpenShift Data Foundation (ODF)** as the default provider for the `RWX` storage class.
+
+If **ODF** is not available, the example allows the user to provide a pre-configured storage class on the cluster capable of provisioning `RWX` volumes. To use a preconfigured storage class, please provide the storage class name in the `threeScale.storageClassName` parameter in the [bootstrap chart](examples/models-as-a-service-3scale/helm-charts/maas-bootstrap/values.yaml) before proceeding.
+
+If you decide to use S3-compatible storage, this example can deploy a simple **MinIO** instance to be used with **3scale**. To enable the **MinIO** deployment, set the parameter `threeScale.storageClassName` to blank (`""`).
+
 ## Prerequisites
 
 Before you begin, ensure you have the following:
 
 *   An OpenShift cluster with cluster-admin privileges.
-*   **OpenShift Data Foundation (ODF)** installed and configured to provide ReadWriteMany (RWX) storage.
+*   An OpenShift storage class capable of creating `ReadWriteMany` volumes. 
 *   The OpenShift GitOps operator installed.
 *   The following command-line tools installed locally:
     *   `oc`
     *   `git`
     *   `jq`
     *   `yq`
-    *   `podman`
 
-Note: A quick way to get most of this configured via gitops is to use the [ai-accelerator](https://github.com/redhat-ai-services/ai-accelerator) github project. The Openshift Gitops operator and RHOAI and related operators are configured for you out of the box. However, ODF operator along with a suitable storage system must be applied to the cluster prior to running the ai-accelerator project bootstrapping or you can tweak the ai-accelerator kustomize files or the ai-accelerator bootstrap script so that ODF/StorageSystem gets deployed prior to other MaaS components binding to persistent volumes.
+**Note**: A quick way to get most of this configured via GitOps is to use the [Red Hat AI Accelerator](https://github.com/redhat-ai-services/ai-accelerator) GitHub project. Using the accelerator project, the OpenShift GitOps operator and RHOAI and related operators are configured for you out of the box. However, the ODF operator along with a suitable storage system must be applied to the cluster prior to running the AI Accelerator project bootstrapping. Alternatively, you can tweak the AI Accelerator kustomize files or the AI Accelerator bootstrap script so that ODF/StorageSystem gets deployed before other MaaS components attempt to bind to persistent volumes.
 
 ## Deployment
+
+Create a clone of the repository.
 
 To deploy this example, clone this repository and run the bootstrap script from the root directory:
 
@@ -42,12 +53,10 @@ To deploy this example, clone this repository and run the bootstrap script from 
 ./bootstrap.sh
 ```
 
-Then select the `models-as-a-service-3scale` example from the menu.
-
 The script will guide you through the following pre-deployment configuration steps:
 
-1.  **Git Repository Configuration**: The script will automatically detect your current Git repository URL and branch (in case of fork scenario) to configure the ArgoCD ApplicationSet.
-2.  **Commit and Push**: You will be prompted to commit and push these configuration changes to your repository. This step is required for the GitOps-based deployment to work correctly. The script uses a Git credential helper to cache your credentials temporarily.
+1.  **Git Repository Configuration**: The script will automatically detect your current Git repository URL and branch (in case of fork scenario) to configure the deployment parameters.
+2.  **Example to Deploy**: The script will show all available examples for deployment. Choose `models-as-a-service-3scale` from the menu.
 
 The bootstrap script then deploys the MaaS components using OpenShift GitOps.
 
@@ -57,10 +66,10 @@ After the script executes, the ArgoCD Application components perform several pos
 
 *   Waits for all components (3scale, Model Serving) to become ready.
 *   Deploys a pre-configured Llama 3.2 1B Instruct model for immediate use.
-*   Creates a admin portal user (username `admin` with password retrievable by the system-seed secret in 3scale namespace) for testing.
-*   Creates a developer portal user (username `dev1` with password `openshift`) for testing.
+*   Creates a 3scale admin portal user (username `admin` with password retrievable from the `system-seed` secret in `3scale` namespace) for testing.
+*   Creates a developer portal user (username `dev1` with password `openshift`) for testing
 *   Configures the 3scale developer portal with custom content to give it a look and feel more appropriate to MaaS.
-*   3Scale Admin and Developer portal Openshift Routes in the 3scale namespace pointing to `system-provider` and `system-developer` Openshift Service's respectively.
+*   3scale Admin and Developer portal OpenShift Routes in the `3scale` namespace pointing to `system-provider` and `system-developer` OpenShift Services respectively.
 
 ### Pre-deployed Model
 
@@ -100,10 +109,6 @@ The deployed Llama model is accessible through:
 - **API Format**: OpenAI-compatible API endpoints
 
 ## Configuration
-
-### Storage Requirements
-
-This example requires ReadWriteMany (RWX) storage for 3scale system storage. OpenShift Data Foundation (ODF) is a prerequisite and must be installed before deployment.
 
 ### Custom Policies
 

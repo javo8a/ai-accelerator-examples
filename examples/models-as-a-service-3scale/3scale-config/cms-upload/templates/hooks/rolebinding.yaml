@@ -18,4 +18,4 @@ subjects:
 - apiGroup: ""
   kind: ServiceAccount
   name: {{ include "cms-upload.name" . }}-hook
-  namespace: {{ .Release.Namespace }}
+  namespace: {{ .Values.namespace }}

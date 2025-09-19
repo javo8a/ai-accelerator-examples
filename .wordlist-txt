@@ -25,6 +25,7 @@ MaaS
 MinIO
 ModelCar
 Multinode
+NFS
 Pre
 ODF
 OCP
@@ -56,6 +57,7 @@ monetizable
 namespace
 namespaces
 pre
+preconfigured
 redhat
 scalable
 vLLM
