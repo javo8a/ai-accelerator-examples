@@ -1,5 +1,5 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+set -euo pipefail
 
 # uncomment to debug
 # set -x
@@ -7,6 +7,7 @@ set -e
 EXAMPLES_DIR="examples"
 ARGOCD_NS="openshift-gitops"
 
+# shellcheck source=./functions.sh
 source "$(dirname "$0")/functions.sh"
 
 choose_example(){
@@ -16,7 +17,7 @@ choose_example(){
     echo "Choose an example you wish to deploy?"
     PS3="Please enter a number to select an example folder: "
 
-    select chosen_example in $(basename -a ${examples_dir}/*/); 
+    select chosen_example in $(basename -a "${examples_dir}/*/"); 
     do
     test -n "${chosen_example}" && break;
     echo ">>> Invalid Selection";
@@ -51,7 +52,7 @@ choose_example_kustomize_option(){
             # let the user choose which one to deploy
             echo "Multiple overlay options found in ${overlays_dir}:"
             PS3="Choose an option you wish to deploy?"
-            select chosen_option in $(basename -a ${overlays_dir}/*/);
+            select chosen_option in $(basename -a "${overlays_dir}/*/");
             do
                 test -n "${chosen_option}" && break;
                 echo ">>> Invalid Selection";
@@ -60,7 +61,7 @@ choose_example_kustomize_option(){
         elif [ "$overlay_count" -eq 1 ]; then
             # one overlay option found
             # use the default one
-            chosen_option=$(basename $(find "$overlays_dir" -mindepth 1 -maxdepth 1 -type d))
+            chosen_option=$(basename "$(find "$overlays_dir" -mindepth 1 -maxdepth 1 -type d)")
             echo "One overlay option found in ${overlays_dir}: ${chosen_option}"
         else
             echo "No overlay options found in ${overlays_dir}"
@@ -101,25 +102,22 @@ deploy_example(){
 
     CLUSTER_DOMAIN_NAME=$(oc get ingresses.config.openshift.io cluster -o jsonpath='{.spec.domain}')
 
-
-    helm upgrade -i ${example_name} ./charts/argocd-appgenerator -n ${ARGOCD_NS} \
-        --set fullnameOverride=${example_name} \
-        --set repoURL=${GITHUB_URL} \
-        --set targetRevision=${GIT_BRANCH} \
-        --set clusterDomainUrl=${CLUSTER_DOMAIN_NAME} \
-        --set kustomizeDirectories[0].path="${chosen_example_overlay_path}" \
-        --set helmDirectories[0].path="${chosen_example_path}/helm-charts/**"
+    helm upgrade -i "${example_name}" ./charts/argocd-appgenerator -n "${ARGOCD_NS}" \
+        --set fullnameOverride="${example_name}" \
+        --set repoURL="${GITHUB_URL}" \
+        --set targetRevision="${GIT_BRANCH}" \
+        --set clusterDomainUrl="${CLUSTER_DOMAIN_NAME}" \
+        --set "kustomizeDirectories[0].path=${chosen_example_overlay_path}" \
+        --set "helmDirectories[0].path=${chosen_example_path}/helm-charts/**"
 }
 
 set_repo_url(){
-    GIT_REPO=$(git config --get remote.origin.url)
-    GIT_REPO_BASENAME=$(get_git_basename ${GIT_REPO})
-    GITHUB_URL="https://github.com/${GIT_REPO_BASENAME}.git"
+    GITHUB_URL=$(get_git_basename)
     
     echo
     echo "Current repository URL: ${GITHUB_URL}"
     echo
-    read -p "Press Enter to use this URL, or enter a new repository URL: " user_input
+    read -r -p "Press Enter to use this URL, or enter a new repository URL: " user_input
     
     if [ -n "$user_input" ]; then
         GITHUB_URL="$user_input"
@@ -135,7 +133,7 @@ set_repo_branch(){
     echo
     echo "Current repository branch: ${GIT_BRANCH}"
     echo
-    read -p "Press Enter to use this branch, or enter a new repository branch: " user_input
+    read -r -p "Press Enter to use this branch, or enter a new repository branch: " user_input
     
     if [ -n "$user_input" ]; then
         GIT_BRANCH="$user_input"
