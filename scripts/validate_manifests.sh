@@ -14,6 +14,7 @@ Where:
   -sl | --schema-location      Location containing schemas"
 }
 
+echo "Checking if kustomize is available..."
 if ! command -v "kustomize" >/dev/null; then
     echo "kustomize command not available."
     echo "Checking if oc is available..."
@@ -23,11 +24,10 @@ if ! command -v "kustomize" >/dev/null; then
     fi
     KUSTOMIZE_CMD="oc kustomize"
     echo "Using Openshift Client version:"
-    oc version
+    oc version --client | sed 's/^/\t/'
 else
     KUSTOMIZE_CMD="kustomize build --enable-helm"
-    echo "Using kustomize version:"
-    kustomize version
+    echo "Using kustomize version: $(kustomize version)"
 fi
 
 IGNORE_MISSING_SCHEMAS="--ignore-missing-schemas"
@@ -59,19 +59,20 @@ done
 
 KUSTOMIZE_DIRS=$(find "${KUSTOMIZE_DIRS}" -type f -name "kustomization.yaml" -exec dirname {} +)
 
-echo "Kustomize directories:"
+echo
+echo "Kustomize directories found:"
 echo "${KUSTOMIZE_DIRS}"
+echo
 
 for i in ${KUSTOMIZE_DIRS}; do
 
   if [[ ${i} == *"./bootstrap"* ]]; then
     echo
-    echo "Skipping validating kustomization $i"
+    echo "Skipping validating for bootstrap kustomization $i"
     echo
     continue
   fi
 
-  echo
   echo "Validating $i"
   echo
 
@@ -95,4 +96,4 @@ for i in ${KUSTOMIZE_DIRS}; do
 done
 
 echo
-echo "Manifests successfully validated!"
+echo "Kustomize manifests successfully validated!"
