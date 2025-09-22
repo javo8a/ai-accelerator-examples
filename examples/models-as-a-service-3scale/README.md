@@ -33,7 +33,7 @@ If you decide to use S3-compatible storage, this example can deploy a simple **M
 Before you begin, ensure you have the following:
 
 *   An OpenShift cluster with cluster-admin privileges.
-*   An OpenShift storage class capable of creating `ReadWriteMany` volumes. 
+*   An OpenShift storage class capable of creating `ReadWriteMany` volumes.
 *   The OpenShift GitOps operator installed.
 *   The following command-line tools installed locally:
     *   `oc`
@@ -44,8 +44,6 @@ Before you begin, ensure you have the following:
 **Note**: A quick way to get most of this configured via GitOps is to use the [Red Hat AI Accelerator](https://github.com/redhat-ai-services/ai-accelerator) GitHub project. Using the accelerator project, the OpenShift GitOps operator and RHOAI and related operators are configured for you out of the box. However, the ODF operator along with a suitable storage system must be applied to the cluster prior to running the AI Accelerator project bootstrapping. Alternatively, you can tweak the AI Accelerator kustomize files or the AI Accelerator bootstrap script so that ODF/StorageSystem gets deployed before other MaaS components attempt to bind to persistent volumes.
 
 ## Deployment
-
-Create a clone of the repository.
 
 To deploy this example, clone this repository and run the bootstrap script from the root directory:
 
@@ -76,7 +74,7 @@ After the script executes, the ArgoCD Application components perform several pos
 The deployment automatically includes:
 
 *   **Llama 3.2 1B Instruct Model**: A pre-configured model served via vLLM with CPU optimization
-*   **Model Configuration**: 
+*   **Model Configuration**:
     - Max model length: 2000 tokens
     - CPU-optimized deployment (no GPU required)
     - Resource limits: 4 CPU cores, 8GB memory
@@ -216,4 +214,4 @@ oc delete namespace 3scale model-serving
 
 ## Contributing
 
-This example is part of the AI Accelerator Examples collection. For contribution guidelines and best practices, see the main repository documentation. 
+This example is part of the AI Accelerator Examples collection. For contribution guidelines and best practices, see the main repository documentation.
