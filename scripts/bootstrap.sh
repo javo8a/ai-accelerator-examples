@@ -17,7 +17,7 @@ choose_example(){
     echo "Choose an example you wish to deploy?"
     PS3="Please enter a number to select an example folder: "
 
-    select chosen_example in $(basename -a "${examples_dir}/*/"); 
+    select chosen_example in $(find "${examples_dir}" -mindepth 1 -maxdepth 1 -type d -exec basename {} \;); 
     do
     test -n "${chosen_example}" && break;
     echo ">>> Invalid Selection";
@@ -46,13 +46,14 @@ choose_example_kustomize_option(){
         
         echo "Found overlays directory: ${overlays_dir}"
         
-        overlay_count=$(find "$overlays_dir" -mindepth 1 -maxdepth 1 -type d | wc -l)
+        overlay_count=$(find "${overlays_dir}" -mindepth 1 -maxdepth 1 -type d | wc -l)
         if [ "$overlay_count" -gt 1 ]; then
             # multiple overlay options found
             # let the user choose which one to deploy
             echo "Multiple overlay options found in ${overlays_dir}:"
             PS3="Choose an option you wish to deploy?"
-            select chosen_option in $(basename -a "${overlays_dir}/*/");
+            
+            select chosen_option in $(find "${overlays_dir}" -mindepth 1 -maxdepth 1 -type d -exec basename {} \;);
             do
                 test -n "${chosen_option}" && break;
                 echo ">>> Invalid Selection";
@@ -61,7 +62,7 @@ choose_example_kustomize_option(){
         elif [ "$overlay_count" -eq 1 ]; then
             # one overlay option found
             # use the default one
-            chosen_option=$(basename "$(find "$overlays_dir" -mindepth 1 -maxdepth 1 -type d)")
+            chosen_option=$(basename "$(find "${overlays_dir}" -mindepth 1 -maxdepth 1 -type d)")
             echo "One overlay option found in ${overlays_dir}: ${chosen_option}"
         else
             echo "No overlay options found in ${overlays_dir}"
@@ -88,7 +89,7 @@ deploy_example(){
         exit 1
     fi
     chosen_example_path="${1}"
-    chosen_example_overlay_path="${1:-""}"
+    chosen_example_overlay_path="${2:-""}"
 
     # Extract the example name from the path (second component after splitting by "/")
     example_name=$(echo "${chosen_example_path}" | cut -d'/' -f2)
