@@ -1,5 +1,5 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+set -euo pipefail
 
 # check login
 check_oc_login(){
@@ -9,14 +9,7 @@ check_oc_login(){
 }
 
 get_git_basename(){
-  if [ -z "$1" ]; then
-    echo "No repo provided."
-    exit 1
-  else
-    REPO_URL=$1
-  fi
-
-  QUERY='s#(git@|https://)github.com[:/]([a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+)\.git#\2#'
-  REPO_BASENAME=$(echo ${REPO_URL} | sed -E  ${QUERY})
-  echo ${REPO_BASENAME}
+  local repo_url
+  repo_url="$(git remote get-url origin | sed -E 's#(git@|https://)github.com:(.*)\.git#https://github.com/\2#')"
+  echo "${repo_url}"
 }
