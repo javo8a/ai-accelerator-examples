@@ -1,6 +1,6 @@
-# vLLM ModelCar Serverless Example
+# vLLM ModelCar RawDeployment Example
 
-This example demonstrates how to deploy and serve the Granite 3.3 2B Instruct model using vLLM in a serverless configuration on OpenShift AI using KServe.
+This example demonstrates how to deploy and serve the Granite 3.3 2B Instruct model using vLLM in a RawDeployment configuration on OpenShift AI using KServe.
 
 This example uses the following Helm chart:
 https://github.com/redhat-ai-services/helm-charts/tree/main/charts/vllm-kserve
@@ -13,8 +13,6 @@ https://github.com/redhat-ai-services/modelcar-catalog/
 This example requires a cluster with the following components:
 * OpenShift AI
   * KServe
-* Serverless
-* ServiceMesh
 * NVIDIA GPU Operator
 * Node Feature Discovery
 
@@ -36,7 +34,7 @@ From the repository root:
 ```bash
 ./scripts/bootstrap.sh
 ```
-1. Select `vllm-modelcar-serverless` from the examples list
+1. Select `vllm-modelcar-rawdeployment` from the examples list
 2. Choose your desired overlay (default will be automatically selected if that is the only option)
 
 ## Troubleshooting
@@ -48,6 +46,5 @@ To remove the deployment:
 
 ```bash
 # Remove ArgoCD application
-helm uninstall vllm-modelcar-serverless -n openshift-gitops
+helm uninstall vllm-modelcar-rawdeployment -n openshift-gitops
 ```
-
