@@ -13,8 +13,23 @@ spec:
       name: minio-create-bucket
     spec:
       restartPolicy: Never
+      initContainers:
+      - name: wait-for-minio-service
+        image: wait4x/wait4x
+        args:
+        - http
+        - https://minio.minio.svc:9000/health
+        - --expect-status-code
+        - "200"
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+          limits:
+            cpu: 100m
+            memory: 100Mi
       containers:
-      - name: minio-bucket
+      - name: create-bucket
         image: quay.io/minio/mc
         env:
           - name: MC_CONFIG_DIR
@@ -24,12 +39,12 @@ spec:
           - name: MINIO_ACCESS_KEY
             valueFrom:
               secretKeyRef:
-                name: minio
+                name: minio-s3-auth
                 key: AWS_ACCESS_KEY_ID
           - name: MINIO_SECRET_KEY
             valueFrom:
               secretKeyRef:
-                name: minio
+                name: minio-s3-auth
                 key: AWS_SECRET_ACCESS_KEY
           - name: MINIO_BUCKET
             value: "3scale-maas"
@@ -43,3 +58,10 @@ spec:
               echo "Creating bucket" && \
               mc mb "minio-3scale/$MINIO_BUCKET" --ignore-existing && \
               echo "Bucket created"
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+          limits:
+            cpu: 100m
+            memory: 100Mi
