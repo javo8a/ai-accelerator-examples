@@ -9,7 +9,7 @@ namespace: 3scale
 operator:
   name: 3scale-operator
   channel: threescale-2.15
-  installPlanApproval: Automatic
+  installPlanApproval: Manual
   startingCSV: 3scale-operator.v0.12.4
   source: redhat-operators
   sourceNamespace: openshift-marketplace
