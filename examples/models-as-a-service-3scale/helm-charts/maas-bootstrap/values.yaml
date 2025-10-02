@@ -11,7 +11,7 @@ targetRevision: main
 threeScale:
   namespace: 3scale
   path: examples/models-as-a-service-3scale/3scale
-  channel: threescale-2.13
+  channel: threescale-mas
   # startingCSV: 3scale-operator.v0.12.4
 #  storageClassName: "ocs-storagecluster-cephfs"
   storageClassName: ""

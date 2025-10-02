@@ -8,7 +8,7 @@ namespace: 3scale
 # operator: ''
 operator:
   name: 3scale-operator
-  channel: threescale-2.13
+  channel: threescale-mas
   installPlanApproval: Automatic
   source: redhat-operators
   sourceNamespace: openshift-marketplace
